@@ -70,9 +70,11 @@ text-align:center;
 
 <input type="time" id="time">
 
+<div class="container">  
 <button class="checkin" onclick="sendData('Check In')">Check In</button>
 <button class="checkout" onclick="sendData('Check Out')">Check Out</button>
-
+</div>
+  
 <button class="reportbtn" onclick="openReport()">Open Report</button>
 
 </div>
@@ -105,10 +107,10 @@ text-align:center;
 <option>2027</option>
 </select>
 
-  <div class="container">
+
 <button class="reportbtn" onclick="loadReport()">Generate Report</button>
 <button class="backbtn" onclick="backMain()">Back</button>
-</div>
+
   
 <table>
 
@@ -366,4 +368,5 @@ table.innerHTML+=tr;
 
 </body>
 </html>
+
 
