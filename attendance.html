@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Driver Route Attendance</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+padding:20px;
+}
+
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+font-size:16px;
+}
+
+.checkin{background:#2e7d32;color:white;border:none;}
+.checkout{background:#c62828;color:white;border:none;}
+.reportbtn{background:#1565c0;color:white;border:none;}
+.backbtn{background:#555;color:white;border:none;}
+
+#reportPage{display:none;}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="mainPage">
+
+<h2>Driver Route Attendance</h2>
+
+<input type="date" id="date">
+
+<select id="lorry">
+<option value="" disabled selected>Select Lorry</option>
+</select>
+
+<select id="driver">
+<option value="" disabled selected>Select Driver</option>
+</select>
+
+<select id="helper">
+<option value="" disabled selected>Select Helper</option>
+</select>
+
+<select id="route">
+<option value="" disabled selected>Select Route</option>
+</select>
+
+<input type="time" id="time">
+
+<button class="checkin" onclick="sendData('Check In')">Check In</button>
+<button class="checkout" onclick="sendData('Check Out')">Check Out</button>
+
+<button class="reportbtn" onclick="openReport()">Open Report</button>
+
+</div>
+
+
+<div id="reportPage">
+
+<h2>Driver Monthly Report</h2>
+
+<input id="reportDriver" placeholder="Driver Name">
+
+<select id="month">
+<option value="">Select Month</option>
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+
+<select id="year">
+<option>2026</option>
+<option>2027</option>
+</select>
+
+<button class="reportbtn" onclick="loadReport()">Generate Report</button>
+<button class="backbtn" onclick="backMain()">Back</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Route</th>
+<th>Lorry</th>
+<th>Status</th>
+<th>Time</th>
+
+</tr>
+</thead>
+
+<tbody id="reportTable"></tbody>
+
+</table>
+
+</div>
+
+
+<script>
+
+const api="https://script.google.com/macros/s/AKfycbxtPz-OqbIlGLc6eZuleRzpyzQ9IRm4x5bMM4vI7r0bHOjHQf4yIjYVaj6DQWH_Xer-/exec";
+
+window.onload=function(){
+
+loadDropdowns();
+setCurrentDateTime();
+
+};
+
+// dropdown loading*************************************************************************************************
+function loadDropdowns(){
+
+fetch(api)
+.then(res => res.json())
+.then(data => {
+
+const lorry = document.getElementById("lorry");
+const driver = document.getElementById("driver");
+const helper = document.getElementById("helper");
+const route = document.getElementById("route");
+
+lorry.innerHTML = '<option value="" disabled selected>Select Lorry</option>';
+driver.innerHTML = '<option value="" disabled selected>Select Driver</option>';
+helper.innerHTML = '<option value="" disabled selected>Select Helper</option>';
+route.innerHTML = '<option value="" disabled selected>Select Route</option>';
+
+data.vehicles.forEach(v=>{
+lorry.add(new Option(v,v));
+});
+
+data.drivers.forEach(d=>{
+driver.add(new Option(d,d));
+});
+
+data.helpers.forEach(h=>{
+helper.add(new Option(h,h));
+});
+
+data.routes.forEach(r=>{
+route.add(new Option(r,r));
+});
+
+})
+.catch(err=>{
+console.error("API Load Error:",err);
+alert("API Load Error");
+
+});
+
+}
+
+//report loading********************************************************************************
+
+function loadReport(){
+
+let name=document.getElementById("reportDriver").value.trim();
+let month=document.getElementById("month").value;
+let year=document.getElementById("year").value;
+
+if(name=="" || month=="" || year==""){
+alert("Please select Driver, Month and Year");
+return;
+}
+
+let url=api+"?driver="+encodeURIComponent(name)+"&month="+month+"&year="+year;
+
+fetch(url)
+.then(res=>res.text())
+.then(text=>{
+
+console.log("API response:",text);
+
+let data=JSON.parse(text);
+
+showReport(data);
+
+})
+.catch(err=>{
+console.error(err);
+alert("Report loading error");
+});
+
+}
+
+
+function setCurrentDateTime(){
+
+let now=new Date();
+
+let y=now.getFullYear();
+let m=String(now.getMonth()+1).padStart(2,'0');
+let d=String(now.getDate()).padStart(2,'0');
+
+document.getElementById("date").value=y+"-"+m+"-"+d;
+
+let h=String(now.getHours()).padStart(2,'0');
+let min=String(now.getMinutes()).padStart(2,'0');
+
+document.getElementById("time").value=h+":"+min;
+
+}
+
+//SAve data *****************************************************************************
+
+let isSaving = false;
+
+function sendData(status){
+
+if(isSaving){
+alert("Please wait... saving");
+return;
+}
+
+let dateVal=document.getElementById("date").value;
+let lorryVal=document.getElementById("lorry").value;
+let driverVal=document.getElementById("driver").value;
+let helperVal=document.getElementById("helper").value;
+let routeVal=document.getElementById("route").value;
+let timeVal=document.getElementById("time").value;
+
+if(!dateVal || !lorryVal || !driverVal || !helperVal || !routeVal || !timeVal){
+alert("Please fill all fields");
+return;
+}
+
+isSaving = true;
+
+fetch(api,{
+method:"POST",
+headers:{
+"Content-Type":"application/x-www-form-urlencoded"
+},
+body:new URLSearchParams({
+date:dateVal,
+time:timeVal,
+lorry:lorryVal,
+driver:driverVal,
+helper:helperVal,
+route:routeVal,
+status:status
+})
+})
+.then(res=>res.text())
+.then(msg=>{
+alert("Saved Successfully");
+clearForm();
+isSaving = false;
+})
+.catch(err=>{
+console.log(err);
+alert("Save error");
+isSaving = false;
+});
+
+}
+
+
+
+function clearForm(){
+
+document.getElementById("lorry").selectedIndex=0;
+document.getElementById("driver").selectedIndex=0;
+document.getElementById("helper").selectedIndex=0;
+document.getElementById("route").selectedIndex=0;
+
+setCurrentDateTime();
+
+}
+
+
+
+function openReport(){
+
+document.getElementById("mainPage").style.display="none";
+document.getElementById("reportPage").style.display="block";
+
+}
+
+
+
+function backMain(){
+
+document.getElementById("mainPage").style.display="block";
+document.getElementById("reportPage").style.display="none";
+
+}
+
+
+
+
+function showReport(data){
+
+console.log(data);
+
+let table=document.getElementById("reportTable");
+table.innerHTML="";
+
+if(!data || data.length===0){
+table.innerHTML="<tr><td colspan='5'>No Records Found</td></tr>";
+return;
+}
+
+data.forEach(row=>{
+
+//let d=new Date(row.date);
+//let dateFormatted=d.toLocaleDateString();
+
+let dateObj = new Date(row.date);
+let dateFormatted = dateObj.toLocaleDateString();
+
+let timeObj = new Date(row.time);
+let timeFormatted = timeObj.getHours() + ":" + String(timeObj.getMinutes()).padStart(2,'0');
+
+
+let tr=`
+<tr>
+<td>${dateFormatted}</td>
+<td>${row.route}</td>
+<td>${row.lorry}</td>
+<td>${row.status}</td>
+<td>${timeFormatted}</td>
+</tr>
+`;
+
+table.innerHTML+=tr;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
