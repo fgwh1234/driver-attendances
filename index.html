@@ -147,10 +147,10 @@ Save
 <thead>
 <tr>
 <th>Date</th>
-<th>Route</th>
+<th>Check In</th>
+<th>Check Out</th>
 <th>Lorry</th>
-<th>Status</th>
-<th>Time</th>
+<th>Route</th>
 
 </tr>
 </thead>
@@ -400,8 +400,6 @@ document.getElementById("reportPage").style.display="none";
 
 function showReport(data){
 
-console.log(data);
-
 let table=document.getElementById("reportTable");
 table.innerHTML="";
 
@@ -412,23 +410,14 @@ return;
 
 data.forEach(row=>{
 
-//let d=new Date(row.date);
-//let dateFormatted=d.toLocaleDateString();
-
 let dateObj = new Date(row.date);
 let dateFormatted = dateObj.toLocaleDateString();
-
-let timeObjin = new Date(row.checkin);
-let timeFormattedin = timeObjin.getHours() + ":" + String(timeObjin.getMinutes()).padStart(2,'0');
-
-  let timeObjout = new Date(row.checkout);
-let timeFormattedout = timeObjout.getHours() + ":" + String(timeObjout.getMinutes()).padStart(2,'0');
 
 let tr=`
 <tr>
 <td>${dateFormatted}</td>
-<td>${row.timeFormattedin}</td>
-<td>${row.timeFormattedout}</td>
+<td>${row.checkin}</td>
+<td>${row.checkout}</td>
 <td>${row.lorry}</td>
 <td>${row.route}</td>
 </tr>
@@ -444,6 +433,7 @@ table.innerHTML+=tr;
 
 </body>
 </html>
+
 
 
 
