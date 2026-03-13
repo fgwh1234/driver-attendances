@@ -21,6 +21,8 @@ margin-top:10px;
 font-size:16px;
 }
 
+  
+
 .container{
 display:flex;
 gap:10px;
@@ -45,6 +47,21 @@ padding:8px;
 text-align:center;
 }
 
+.row{
+display:flex;
+align-items:center;
+margin-top:10px;
+}
+
+.row label{
+width:40%;
+font-weight:bold;
+}
+
+.row input{
+width:60%;
+padding:10px;
+}
 </style>
 
 </head>
@@ -73,16 +90,20 @@ text-align:center;
 <option value="" disabled selected>Select Route</option>
 </select>
 
-
-  <label>Check In Time</label>
+<div class="row">
+<label>Check In Time</label>
 <input type="time" id="checkin">
+</div>
 
+<div class="row">
 <label>Check Out Time</label>
 <input type="time" id="checkout">
-
-<div class="container">
-<button class="checkin" onclick="saveAttendance()">Save</button>
 </div>
+
+<button onclick="saveAttendance()" style="background:#2e7d32;color:white;border:none;padding:12px;margin-top:15px;width:100%;">
+Save
+</button>
+
   
 <button class="reportbtn" onclick="openReport()">Open Report</button>
 
@@ -421,6 +442,7 @@ table.innerHTML+=tr;
 
 </body>
 </html>
+
 
 
 
