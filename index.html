@@ -74,9 +74,16 @@ text-align:center;
 </select>
 
 <input type="time" id="time">
+  <label>Check In Time</label>
+<input type="time" id="checkin">
 
+<label>Check Out Time</label>
+<input type="time" id="checkout">
 
 <div class="container">
+
+
+<button class="checkin" onclick="saveAttendance()">Save</button>
 <button class="checkin" onclick="sendData('Check In')">Check In</button>
 <button class="checkout" onclick="sendData('Check Out')">Check Out</button>
 </div>
@@ -374,6 +381,7 @@ table.innerHTML+=tr;
 
 </body>
 </html>
+
 
 
 
